@@ -1,0 +1,2 @@
+# No external dependencies required for core functionality.
+# Built using Python standard library (os, shutil, json, argparse, logging).

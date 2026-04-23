@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "Images": [".jpg", ".png", ".jpeg", ".webp", ".gif"],
+    "Videos": [".mp4", ".mkv", ".mov", ".avi"],
+    "Documents": [".pdf", ".docx", ".txt", ".xlsx"],
+    "Audio": [".mp3", ".wav", ".flac"],
+    "Archives": [".zip", ".rar", ".7z", ".tar.gz"]
+  },
+  "target_base": "./Organized"
+}
