@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import logging
+import hashlib
 from datetime import datetime
 
 class FileOrganizer:
@@ -26,6 +27,14 @@ class FileOrganizer:
         except Exception:
             return {"rules": {"Docs": [".pdf", ".txt"]}, "target_base": "~/Organized"}
 
+    def _calculate_hash(self, file_path):
+        """Calculate SHA-256 hash of a file."""
+        sha256_hash = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+
     def _log_history(self, source, destination):
         with open(self.HISTORY_FILE, "a") as f:
             f.write(f"{source}|{destination}\n")
@@ -47,7 +56,6 @@ class FileOrganizer:
             try:
                 src, dest = line.strip().split("|")
                 if os.path.exists(dest):
-                    # Ensure the source directory exists
                     os.makedirs(os.path.dirname(src), exist_ok=True)
                     shutil.move(dest, src)
                     print(f"  ⏪ Restored: {os.path.basename(src)}")
@@ -57,34 +65,50 @@ class FileOrganizer:
         os.remove(self.HISTORY_FILE)
         print("✅ Undo complete.")
 
-    def run(self, source_folder, dry_run=False):
+    def run(self, source_folder, dry_run=False, skip_duplicates=False, rename_mode="none"):
         source_folder = os.path.expanduser(source_folder)
         moved_count = 0
+        skipped_count = 0
 
         print(f"{' [DRY RUN] ' if dry_run else ''}🚀 Organizing: {source_folder}")
-        logging.info(f"Starting session in {source_folder} (Dry run: {dry_run})")
+        logging.info(f"Starting session in {source_folder} (Dry run: {dry_run}, Skip Duplicates: {skip_duplicates}, Rename: {rename_mode})")
 
         for item in os.listdir(source_folder):
             item_path = os.path.join(source_folder, item)
 
-            if os.path.isfile(item_path):
+            if os.path.isfile(item_path) and not item.startswith("."):
                 ext = os.path.splitext(item)[1].lower()
                 
-                found_match = False
                 for category, extensions in self.rules.items():
                     if ext in extensions:
                         dest_dir = os.path.join(self.target_base, category)
-                        dest_path = os.path.join(dest_dir, item)
                         
+                        # Handle Renaming
+                        new_name = item
+                        if rename_mode == "date":
+                            mtime = os.path.getmtime(item_path)
+                            date_str = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
+                            new_name = f"{date_str}_{item}"
+
+                        dest_path = os.path.join(dest_dir, new_name)
+                        
+                        # Duplicate Detection
+                        if skip_duplicates and os.path.exists(dest_path):
+                            if self._calculate_hash(item_path) == self._calculate_hash(dest_path):
+                                print(f"  ⏭️  Skipping duplicate: {item}")
+                                logging.info(f"Skipped duplicate: {item}")
+                                skipped_count += 1
+                                break
+
                         if not dry_run:
                             os.makedirs(dest_dir, exist_ok=True)
                             self._log_history(item_path, dest_path)
                             shutil.move(item_path, dest_path)
                             logging.info(f"Moved: {item_path} -> {dest_path}")
                         
-                        print(f"  ➡️  {item} {'would be moved' if dry_run else 'moved'} to {category}/")
+                        status = "would be moved" if dry_run else "moved"
+                        print(f"  ➡️  {item} {status} to {category}/{new_name}")
                         moved_count += 1
-                        found_match = True
                         break
         
-        print(f"\n✅ Finished. Total files processed: {moved_count}")
+        print(f"\n✅ Finished. Moved: {moved_count}, Skipped: {skipped_count}")

@@ -53,6 +53,16 @@ python main.py ~/storage/downloads --dry-run
 python main.py --undo
 ```
 
+### Skip Duplicates
+```bash
+python main.py ~/storage/downloads --skip-duplicates
+```
+
+### Auto-Rename (Date Prefix)
+```bash
+python main.py ~/storage/downloads --rename date
+```
+
 ---
 
 ## 📋 Configuration (`config.json`)
@@ -87,6 +97,8 @@ def main():
     parser.add_argument("path", nargs="?", help="The directory to organize")
     parser.add_argument("--dry-run", action="store_true", help="Preview changes without moving files")
     parser.add_argument("--undo", action="store_true", help="Rollback the last organization session")
+    parser.add_argument("--skip-duplicates", action="store_true", help="Don't move files if a duplicate already exists in destination")
+    parser.add_argument("--rename", choices=["date", "none"], default="none", help="Rename files (e.g., prefix with date)")
     parser.add_argument("--config", default="config.json", help="Path to custom config.json")
     
     args = parser.parse_args()
@@ -104,7 +116,7 @@ def main():
         print(f"❌ Error: The path '{args.path}' does not exist.")
         return
 
-    organizer.run(args.path, dry_run=args.dry_run)
+    organizer.run(args.path, dry_run=args.dry_run, skip_duplicates=args.skip_duplicates, rename_mode=args.rename)
 
 if __name__ == "__main__":
     main()
@@ -206,9 +218,9 @@ class FileOrganizer:
 ## 🗺️ Roadmap
 
 - [x] **Dry-Run Mode:** `--dry-run` flag to preview changes safely.
-- [x] **Undo Feature:** Instantly rollback the last organization session with `--undo`.
-- [ ] **Duplicate Detection:** Smart hash checking to prevent redundant files.
-- [ ] **File Renaming:** Auto-rename patterns based on date or metadata.
+- [x] **Undo Feature:** Instantly rollback moves with `--undo`.
+- [x] **Duplicate Detection:** Smart hash checking (SHA-256) via `--skip-duplicates`.
+- [x] **File Renaming:** Auto-rename with date prefixes using `--rename date`.
 
 ---
 

@@ -14,9 +14,9 @@ A high-performance Python CLI tool designed to declutter your environment instan
 *   **⚡ Instant Sorting:** Organize thousands of files with a single command.
 *   **⏪ Instant Undo:** Rollback the last organization session with `--undo`.
 *   **🔍 Dry-Run Support:** Preview changes before they happen using `--dry-run`.
-*   **📜 Detailed Logging:** All operations are logged to `organizer.log` for auditability.
-*   **🧠 Config-Driven:** Fully customizable rules via `config.json`.
-*   **📱 Termux Optimized:** Lightweight and efficient for mobile environments.
+*   **👯 Duplicate Detection:** Prevent redundant files using SHA-256 hash checking.
+*   **📅 Auto-Renaming:** Automatically prefix files with creation dates.
+*   **📜 Detailed Logging:** All operations are logged to `organizer.log`.
 
 ---
 
@@ -71,8 +71,8 @@ Customize where your files go. The tool automatically maps extensions to folders
 
 - [x] **Dry-Run Mode:** `--dry-run` flag to preview changes safely.
 - [x] **Undo Feature:** Instantly rollback moves with `--undo`.
-- [ ] **Duplicate Detection:** Smart hash checking to prevent redundant files.
-- [ ] **File Renaming:** Auto-rename patterns based on date or metadata.
+- [x] **Duplicate Detection:** Smart hash checking (SHA-256) to prevent redundant files.
+- [x] **File Renaming:** Auto-rename patterns based on date prefixes.
 
 ---
 

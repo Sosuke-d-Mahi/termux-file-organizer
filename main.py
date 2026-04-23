@@ -7,6 +7,8 @@ def main():
     parser.add_argument("path", nargs="?", help="The directory to organize")
     parser.add_argument("--dry-run", action="store_true", help="Preview changes without moving files")
     parser.add_argument("--undo", action="store_true", help="Rollback the last organization session")
+    parser.add_argument("--skip-duplicates", action="store_true", help="Don't move files if a duplicate already exists in destination")
+    parser.add_argument("--rename", choices=["date", "none"], default="none", help="Rename files (e.g., prefix with date)")
     parser.add_argument("--config", default="config.json", help="Path to custom config.json")
     
     args = parser.parse_args()
@@ -24,7 +26,12 @@ def main():
         print(f"❌ Error: The path '{args.path}' does not exist.")
         return
 
-    organizer.run(args.path, dry_run=args.dry_run)
+    organizer.run(
+        args.path, 
+        dry_run=args.dry_run, 
+        skip_duplicates=args.skip_duplicates, 
+        rename_mode=args.rename
+    )
 
 if __name__ == "__main__":
     main()
