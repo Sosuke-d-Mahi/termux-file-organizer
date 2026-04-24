@@ -3,7 +3,7 @@ import os
 from organizer import FileOrganizer
 
 def main():
-    parser = argparse.ArgumentParser(description="Smart File Organizer for Termux/Linux")
+    parser = argparse.ArgumentParser(description="Termux File Organizer (CLI)")
     parser.add_argument("path", nargs="?", help="The directory to organize")
     parser.add_argument("--dry-run", action="store_true", help="Preview changes without moving files")
     parser.add_argument("--undo", action="store_true", help="Rollback the last organization session")
